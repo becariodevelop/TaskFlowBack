@@ -1,0 +1,242 @@
+DROP DATABASE agencia_digital_db_dev;
+
+CREATE DATABASE agencia_digital_db_dev
+	WITH
+	OWNER = postgres
+	ENCODING = 'UTF-8'
+	CONNECTION LIMIT = -1;
+
+-- Esquema para Agencia Digital
+
+CREATE SCHEMA bitacora_agencia_digital;
+
+-------------------------------------------------------
+--------------- ENTIDAD ROLES DE ACCESO ---------------
+-------------------------------------------------------
+-- DDL Tabla Roles de acceso
+CREATE TABLE bitacora_agencia_digital.Roles_Acceso(
+	id_tipo_rol_acceso SERIAL NOT NULL PRIMARY KEY,
+	rol_acceso VARCHAR(20),
+	descripcion_rol VARCHAR(50)
+);
+-------------------------------------------------------
+-- DQL Tabla Roles de acceso
+SELECT * FROM bitacora_agencia_digital.Roles_Acceso;
+-- DML TABLA Roles de acceso
+INSERT INTO bitacora_agencia_digital.Roles_Acceso(rol_acceso, descripcion_rol)
+VALUES 
+('Admin','Crear,Leer,Actualizar,Eliminar'),
+('Captura','Crear,Leer'),
+('Lectura','Leer');
+-----------------------------------------------------------
+
+-----------------------------------------------------------
+-------------- ENTIDAD CATALOGO ACTIVIDADES ---------------
+-----------------------------------------------------------
+-- DDL
+CREATE TABLE bitacora_agencia_digital.catalogo_actividades(
+	id_actividad SERIAL NOT NULL PRIMARY KEY,
+	actividad VARCHAR(100) UNIQUE,
+	horas_actividad INT,
+	celula VARCHAR(30),
+	costo_unitario INT
+);
+-- DQL
+SELECT * FROM bitacora_agencia_digital.catalogo_actividades;
+-- DML
+INSERT INTO bitacora_agencia_digital.catalogo_actividades(actividad, horas_actividad, celula, costo_unitario)
+VALUES 
+('Fichas Técnicas Productos Stock',1.5,'FORMULACION',56.16),
+('Fichas Técnicas Productos Nuevos',2,'FORMULACION',74.88),
+('Investigaciones',4,'FORMULACION',149.76),
+('Formulación Productos Stock',4,'FORMULACION',149.76);
+
+INSERT INTO bitacora_agencia_digital.catalogo_actividades(actividad, horas_actividad, celula, costo_unitario)
+VALUES 
+('Formulación Productos Innovadores',6,'FORMULACION',224.63)
+RETURNING id_actividad;
+
+
+-----------------------------------------------------------
+-------------- ENTIDAD CELULAS AGENCIA DIGITAL ------------
+-----------------------------------------------------------
+-- DDL
+CREATE TABLE bitacora_agencia_digital.celulas_agencia_digital(
+	id_celula_agencia_digital SERIAL NOT NULL PRIMARY KEY,
+	celula VARCHAR(30)
+);
+-- DML
+INSERT INTO bitacora_agencia_digital.celulas_agencia_digital(celula)
+VALUES
+('AGENCIA CREATIVA'),
+('FORMULACION'),
+('EMPAQUE'),
+('DISEÑO SOCIAL'),
+('DISEÑO AUDIOVISUAL'),
+('DESARROLLO WEB');
+
+------------------------------------------------------------
+--------------- ENTIDAD UNIDAD CLIENTE INTERNO -------------
+------------------------------------------------------------
+-- DDL TABLA UNIDAD CLIENTE INTERNO
+CREATE TABLE bitacora_agencia_digital.unidad_cliente_interno(
+	id_unidad_cliente_interno SERIAL NOT NULL PRIMARY KEY,
+	nombre_cliente_interno VARCHAR(30)
+);
+-- DQL TABLA UNIDAD CLIENTE INTERNO
+SELECT * FROM bitacora_agencia_digital.unidad_cliente_interno;
+-- DML 
+INSERT INTO bitacora_agencia_digital.unidad_cliente_interno(nombre_cliente_interno)
+VALUES 
+('MAQUILAS'),
+('MAYOREO'),
+('MENUDEO'),
+('DHARMALINE'),
+('ADMINISTRACIÓN'),
+('NUVAH'),
+('NEEN'),
+('MINIPISOS');
+
+-- DDL  TABLA PUESTO COLABORADOR
+-------------------------------------------------------
+--------- ENTIDAD PUESTO COLABORADOR ------------------
+-------------------------------------------------------
+-- DDL
+CREATE TABLE bitacora_agencia_digital.puesto_colaborador(
+	id_puesto_colaborador SERIAL NOT NULL PRIMARY KEY,
+	puesto_colaborador VARCHAR(150),
+	celula varchar(50),
+	unidad_organizativa VARCHAR(100)
+);
+
+-- DML
+INSERT INTO bitacora_agencia_digital.puesto_colaborador(puesto_colaborador, celula, unidad_organizativa)
+VALUES
+('Gerente','AgenciaCreativa','AgenciaDigital'),
+('Coord. Formulaciones','Formulaciones','AgenciaDigital'),
+('D. Web','Desarrollo Web','AgenciaDigital'),
+('Diseñador Empaque','Empaque','AgenciaDigital'),
+('Diseñador Grafico','Diseño Social','AgenciaDigital'),
+('Practicante Multimedia','Diseño Audiovisual','AgenciaDigital'),
+('Diseñador Multimedia','Diseño Audiovisual','AgenciaDigital');
+
+-- DDL TABLA ESTATUS COLABORADOR
+------------------------------------------------
+--------- ENTIDAD ESTATUS COLABORADOR ----------
+------------------------------------------------
+CREATE TABLE bitacora_agencia_digital.estatus_colaborador(
+	id_estatus_colaborador SERIAL NOT NULL PRIMARY KEY,
+	estatus_colaborador VARCHAR(20),
+	impacto_nomina BOOLEAN
+);
+
+INSERT INTO bitacora_agencia_digital.estatus_colaborador(estatus_colaborador, impacto_nomina)
+VALUES
+('Activo', TRUE),
+('Inactivo', FALSE);
+
+-- REQUIERE PUESTO COLABORADOR y ESTATUS COLABORADOR
+-- DDL TABLA ColaboradorAgenciaDigital
+-------------------------------------------------------
+---------- ENTIDAD ColaboradorAgenciaDigital ----------
+-------------------------------------------------------
+-- DDL
+CREATE TABLE bitacora_agencia_digital.colaborador_agencia_digital(
+	id_colaborador SERIAL NOT NULL PRIMARY KEY,
+	celula VARCHAR(50) NOT NULL,
+	id_puesto_colaborador INT,
+	puesto_colaborador VARCHAR(50) NOT NULL,
+	nombre_colaborador VARCHAR(100) NOT NULL,
+	horas_diarias INT NOT NULL,
+	horas_mes INT NOT NULL,
+	id_estatus_colaborador INT NOT NULL,
+	estatus_colaborador VARCHAR(20) NOT NULL,
+	FOREIGN KEY (id_estatus_colaborador) 
+		REFERENCES bitacora_Agencia_digital.estatus_colaborador(id_estatus_colaborador),
+	FOREIGN KEY (id_puesto_colaborador) 
+		REFERENCES bitacora_Agencia_digital.puesto_colaborador(id_puesto_colaborador)
+);
+-- DML
+INSERT INTO bitacora_agencia_digital.colaborador_agencia_digital(
+	celula, 
+	id_puesto_colaborador, 
+	puesto_colaborador, 
+	nombre_colaborador,
+	horas_diarias,
+	horas_mes,
+	id_estatus_colaborador, 
+	estatus_colaborador
+	)
+VALUES 
+('AGENCIA CREATIVA',1,'Gerente', 'Ramón Vega Chávez',8,172,1,'Activo'),
+('FORMULACION',2,'Coord. Formulaciones','Lorena Hernández Martínez',8,172,1,'Activo'),
+('DESARROLLO WEB',3,'D. Web','Pablo Arambula Ortíz',8,172,1,'Activo'),
+('DESARROLLO WEB',3,'D. Web','Mauricio Cervantes Carranco',8,172,1,'Activo');
+-- DQL
+SELECT * FROM bitacora_agencia_digital.colaborador_agencia_digital;
+
+
+--- Requiere entidad Colaborador Y TipoRolAcceso
+------------------------------------------------
+--------------- ENTIDAD USUARIOS ---------------
+------------------------------------------------
+CREATE TABLE bitacora_agencia_digital.usuarios(
+	id_usuario SERIAL NOT NULL PRIMARY KEY,
+	nombre_usuario VARCHAR(20) UNIQUE,
+	clave VARCHAR(50),
+	id_colaborador INT,
+	id_tipo_rol_acceso INT,
+	FOREIGN KEY (id_colaborador) REFERENCES bitacora_Agencia_digital.colaborador_agencia_digital(id_colaborador),
+	FOREIGN KEY (id_tipo_rol_acceso) REFERENCES bitacora_Agencia_digital.roles_acceso(id_tipo_rol_acceso)
+);
+INSERT INTO bitacora_agencia_digital.usuarios(nombre_usuario, clave, id_colaborador, id_tipo_rol_acceso)
+VALUES
+('gerente','GerenteAdmin',1,1),
+('capturaForm', 'CapturaForm', 2,2);
+
+-----------------------------------------------------------
+------------- ENTIDAD BITACORA REGISTRO -------------------
+-----------------------------------------------------------
+-- DDL
+-- Requiere TABLAS: celulas_agencia_digital, id_colaborador, id_actividad, id_unidad_cliente_interno
+CREATE TABLE bitacora_agencia_digital.bitacora_registro(
+	id_bitacora_registro SERIAL NOT NULL PRIMARY KEY,
+	fecha_registro DATE,
+	id_celula_agencia_digital INT,
+	celula VARCHAR(30),
+	id_colaborador INT,
+	nombre_colaborador VARCHAR(100),
+	id_actividad INT,
+	actividad VARCHAR(100),
+	cantidad INT,
+	id_unidad_cliente_interno INT,
+	nombre_cliente_interno VARCHAR(30),
+	FOREIGN KEY (id_celula_agencia_digital) REFERENCES bitacora_agencia_digital.celulas_agencia_digital(id_celula_agencia_digital),
+	FOREIGN KEY (id_colaborador) REFERENCES bitacora_agencia_digital.colaborador_agencia_digital(id_colaborador),
+	FOREIGN KEY (id_actividad) REFERENCES bitacora_agencia_digital.catalogo_actividades(id_actividad),
+	FOREIGN KEY (id_unidad_cliente_interno) REFERENCES bitacora_agencia_digital.unidad_cliente_interno(id_unidad_cliente_interno)
+);
+-- DDL
+SELECT * FROM bitacora_agencia_digital.bitacora_registro WHERE fecha_registro BETWEEN '2025-06-01' AND '2025-06-30' AND celula = 'FORMULACIONES';
+SELECT * FROM bitacora_agencia_digital.bitacora_registro WHERE fecha_registro BETWEEN '2025-06-01' AND '2025-06-30';
+
+-- REQUIERE BITACORA REGISTRO LLENA
+-----------------------------------------------------------------------
+------------- ENTIDAD COSTO POR ACTIVIDAD REALIZADA -------------------
+-----------------------------------------------------------------------
+-- DDL
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
