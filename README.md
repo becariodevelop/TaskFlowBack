@@ -1,8 +1,9 @@
 Proyecto diseñado en django rest framework para taskflow
 
-La base de datos correspondiente es PostgreSQL v17
+La base de datos correspondiente es PostgreSQL v17, es necesario crear un esquema llamado "bitacora_agencia_digital" mismo que contendrá las tablas
 
 
+# Pasos para crear el entorno virtual necesario para el backend
 
 pasos para crear el entorno virtual
 
