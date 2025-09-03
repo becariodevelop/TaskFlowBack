@@ -1,0 +1,12 @@
+venv/
+.venv/
+.env
+venv/
+env/
+.venv/
+.env/
+ENV/
+Scripts/
+Lib/
+Include/
+pyvenv.cfg
